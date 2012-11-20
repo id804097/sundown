@@ -977,12 +977,12 @@ char_link(struct buf *ob, struct sd_markdown *rndr, uint8_t *data, size_t offset
 	
 	/* footnote link */
 	if (rndr->ext_flags & MKDEXT_FOOTNOTES && data[1] == '^') {
-		if (txt_e < 3)
-			goto cleanup;
-	
 		struct buf id = { 0, 0, 0, 0 };
 		struct footnote_ref *fr;
 		
+		if (txt_e < 3)
+			goto cleanup;
+
 		id.data = data + 2;
 		id.size = txt_e - 2;
 		
@@ -2735,6 +2735,8 @@ sd_markdown_render(struct buf *ob, const uint8_t *document, size_t doc_size, str
 	struct buf *text;
 	size_t beg, end;
 
+	int footnotes_enabled = md->ext_flags & MKDEXT_FOOTNOTES;
+
 	text = bufnew(64);
 	if (!text)
 		return;
@@ -2744,8 +2746,6 @@ sd_markdown_render(struct buf *ob, const uint8_t *document, size_t doc_size, str
 
 	/* reset the references table */
 	memset(&md->refs, 0x0, REF_TABLE_SIZE * sizeof(void *));
-	
-	int footnotes_enabled = md->ext_flags & MKDEXT_FOOTNOTES;
 	
 	/* reset the footnotes lists */
 	if (footnotes_enabled) {
